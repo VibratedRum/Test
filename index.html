@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pirate Enemies — Grok Imagine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <p class="brand">Grok Imagine</p>
+      <nav class="mode-switch" role="tablist" aria-label="View mode">
+        <button class="mode-btn is-active" data-mode="gallery" role="tab" aria-selected="true">
+          Gallery
+        </button>
+        <button class="mode-btn" data-mode="2d" role="tab" aria-selected="false">2D Arena</button>
+        <button class="mode-btn" data-mode="3d" role="tab" aria-selected="false">3D Deck</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="view-gallery" class="view is-active" role="tabpanel">
+        <div class="hero-stage">
+          <img
+            class="hero-art"
+            src="/assets/pirate-enemy-hero.png"
+            alt="Hyper-realistic pirate enemy captain"
+          />
+          <div class="hero-copy">
+            <h1>Pirate Enemies</h1>
+            <p>
+              Hyper-realistic 2D sprites and 3D deck fighters generated with Grok Imagine —
+              animated for combat demos.
+            </p>
+            <div class="cta-row">
+              <button class="cta" data-jump="2d">Enter 2D Arena</button>
+              <button class="cta cta-ghost" data-jump="3d">Board 3D Deck</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="roster" aria-label="Pirate roster">
+          <h2>Enemy Roster</h2>
+          <p class="section-lead">Imagine-generated captains ready for 2D and 3D pipelines.</p>
+          <div class="roster-grid">
+            <figure class="roster-card">
+              <img src="/assets/pirate-2d-idle.png" alt="Pirate captain idle" />
+              <figcaption>
+                <strong>Captain Rourke</strong>
+                <span>Idle · 2D sprite</span>
+              </figcaption>
+            </figure>
+            <figure class="roster-card">
+              <img src="/assets/pirate-2d-attack.png" alt="Pirate captain attack" />
+              <figcaption>
+                <strong>Captain Rourke</strong>
+                <span>Attack · combat frame</span>
+              </figcaption>
+            </figure>
+            <figure class="roster-card">
+              <img src="/assets/pirate-2d-female-idle.png" alt="Female pirate idle" />
+              <figcaption>
+                <strong>Lady Voss</strong>
+                <span>Idle · 2D sprite</span>
+              </figcaption>
+            </figure>
+            <figure class="roster-card">
+              <img src="/assets/pirate-3d-turnaround.png" alt="Pirate 3D turnaround sheet" />
+              <figcaption>
+                <strong>3D Turnaround</strong>
+                <span>Model reference sheet</span>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-2d" class="view" role="tabpanel" hidden>
+        <div class="panel-head">
+          <h2>2D Arena</h2>
+          <p>Sprite enemies with idle / walk / attack cycles on a battle deck.</p>
+        </div>
+        <canvas id="arena-2d" width="1280" height="720" aria-label="2D pirate arena"></canvas>
+        <div class="hud">
+          <button id="spawn-2d">Spawn Pirate</button>
+          <button id="attack-2d">All Attack</button>
+          <span id="count-2d">Enemies: 0</span>
+        </div>
+      </section>
+
+      <section id="view-3d" class="view" role="tabpanel" hidden>
+        <div class="panel-head">
+          <h2>3D Deck</h2>
+          <p>Billboard fighters with bob, sway, and cutlass strike animations.</p>
+        </div>
+        <div id="arena-3d" aria-label="3D pirate deck"></div>
+        <div class="hud">
+          <button id="spawn-3d">Spawn Pirate</button>
+          <button id="attack-3d">All Attack</button>
+          <button id="orbit-3d">Toggle Orbit</button>
+          <span id="count-3d">Enemies: 0</span>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
