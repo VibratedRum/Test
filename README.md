@@ -49,3 +49,22 @@ On-screen controls appear automatically on touch devices (or add `?touch` to the
 3. Explore north — earn the **Skeleton Key** in the Ruined Watch
 4. Buy bombs in Tide Village if needed
 5. Unlock Blackreef Fortress and defeat **Captain Bones**
+
+## 3D Pirate Captain
+
+`models3d/pirate_captain.glb` — image-to-3D mesh from the pirate character sheet.
+
+Open `viewer3d.html` (via the local server) to inspect the model.
+
+### Using Modly (local GPU)
+
+[Modly](https://github.com/lightningpixel/modly) runs image-to-3D on your GPU. This cloud environment has no GPU, so the checked-in mesh was generated via the public TripoSR demo API from the same character sheet.
+
+On a machine with Modly installed and running:
+
+```bash
+# Optional: export MODLY_DIR=~/modly
+./tools/modly_generate.sh assets/pirate_character_sheet.png models3d/pirate_captain_modly.glb
+```
+
+Install a Modly image-to-3D extension first (Models → Install from GitHub), e.g. Hunyuan3D Mini.
