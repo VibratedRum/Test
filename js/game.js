@@ -8,11 +8,17 @@ const UI = {
       'inventory', 'inv-grid', 'map-overlay', 'minimap', 'pause-screen',
       'gameover', 'victory', 'victory-stats', 'item-get', 'item-get-img', 'item-get-text',
       'btn-start', 'btn-resume', 'btn-totitle', 'btn-retry', 'btn-again',
+      'touch-controls',
     ];
     ids.forEach((id) => { this.el[id] = document.getElementById(id); });
   },
   show(id) { this.el[id]?.classList.remove('hidden'); },
   hide(id) { this.el[id]?.classList.add('hidden'); },
+  setTouchPad(visible) {
+    if (!document.body.classList.contains('touch-ui')) return;
+    if (visible) this.show('touch-controls');
+    else this.hide('touch-controls');
+  },
   refresh() {
     const p = Game.player;
     if (!p) return;
@@ -119,6 +125,11 @@ const Game = {
     this.ctx = this.canvas.getContext('2d');
     this.ctx.imageSmoothingEnabled = false;
 
+    if (Input.isTouchDevice() || new URLSearchParams(location.search).has('touch')) {
+      document.body.classList.add('touch-ui');
+    }
+    Input.bindTouchPad(document.getElementById('touch-controls'));
+
     await Assets.loadAll();
     this.bindButtons();
     this.loop(performance.now());
@@ -130,6 +141,33 @@ const Game = {
     UI.el['btn-totitle'].onclick = () => this.toTitle();
     UI.el['btn-retry'].onclick = () => this.startGame();
     UI.el['btn-again'].onclick = () => this.startGame();
+
+    document.querySelectorAll('[data-close]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const which = btn.getAttribute('data-close');
+        if (which === 'inventory') {
+          UI.hide('inventory');
+          this.state = 'play';
+          UI.setTouchPad(true);
+        } else if (which === 'map') {
+          UI.hide('map-overlay');
+          this.state = 'play';
+          UI.setTouchPad(true);
+        }
+      });
+    });
+
+    // Tap dialogue / item-get overlays to advance
+    UI.el.dialogue?.addEventListener('pointerup', () => {
+      if (this.state === 'dialogue') this.advanceDialogue();
+    });
+    UI.el['item-get']?.addEventListener('pointerup', () => {
+      if (this.state === 'itemget') {
+        UI.hide('item-get');
+        this.state = 'play';
+        UI.setTouchPad(true);
+      }
+    });
   },
 
   startGame() {
@@ -152,6 +190,7 @@ const Game = {
     UI.hide('victory');
     UI.hide('pause-screen');
     UI.show('hud');
+    UI.setTouchPad(true);
     UI.refresh();
   },
 
@@ -162,12 +201,14 @@ const Game = {
     UI.hide('pause-screen');
     UI.hide('inventory');
     UI.hide('map-overlay');
+    UI.setTouchPad(false);
     UI.show('title-screen');
   },
 
   resume() {
     this.state = 'play';
     UI.hide('pause-screen');
+    UI.setTouchPad(true);
   },
 
   loadScreen(id, fromDir) {
@@ -391,12 +432,14 @@ const Game = {
 
   onPlayerDeath() {
     this.state = 'dead';
+    UI.setTouchPad(false);
     UI.show('gameover');
     AudioSys.stopMusic();
   },
 
   win() {
     this.state = 'win';
+    UI.setTouchPad(false);
     AudioSys.sfx.win();
     AudioSys.stopMusic();
     const secs = Math.floor((performance.now() - this.startTime) / 1000);
@@ -436,6 +479,7 @@ const Game = {
 
   openDialogue(name, lines) {
     this.state = 'dialogue';
+    UI.setTouchPad(false);
     this.dialogueQueue = lines.slice();
     this.dialogueIndex = 0;
     UI.el['dialogue-name'].textContent = name;
@@ -449,6 +493,7 @@ const Game = {
     if (this.dialogueIndex >= this.dialogueQueue.length) {
       UI.hide('dialogue');
       this.state = 'play';
+      UI.setTouchPad(true);
       return;
     }
     UI.el['dialogue-text'].textContent = this.dialogueQueue[this.dialogueIndex];
@@ -488,6 +533,7 @@ const Game = {
 
   showItemGet(imgKey, text) {
     this.state = 'itemget';
+    UI.setTouchPad(false);
     UI.el['item-get-img'].src = `assets/ui/${imgKey}.png`.replace('assets/ui/prop_', 'assets/sprites/prop_');
     if (imgKey.startsWith('item_')) UI.el['item-get-img'].src = `assets/ui/${imgKey}.png`;
     else UI.el['item-get-img'].src = `assets/ui/${imgKey}.png`;
@@ -613,9 +659,10 @@ const Game = {
 
     if (this.state === 'itemget') {
       this.itemGetTimer -= dt;
-      if (this.itemGetTimer <= 0 || Input.wasPressed('action')) {
+      if (this.itemGetTimer <= 0 || Input.wasPressed('action') || Input.wasPressed('sword')) {
         UI.hide('item-get');
         this.state = 'play';
+        UI.setTouchPad(true);
       }
       Input.endFrame();
       return;
@@ -628,9 +675,10 @@ const Game = {
     }
 
     if (this.state === 'inventory') {
-      if (Input.wasPressed('inventory') || Input.wasPressed('pause')) {
+      if (Input.wasPressed('inventory') || Input.wasPressed('pause') || Input.wasPressed('action')) {
         UI.hide('inventory');
         this.state = 'play';
+        UI.setTouchPad(true);
       }
       // use potion
       if (Input.wasPressed('item') && this.player.potions > 0 && this.player.hp < this.player.maxHp) {
@@ -647,6 +695,7 @@ const Game = {
       if (Input.wasPressed('map') || Input.wasPressed('pause') || Input.wasPressed('action')) {
         UI.hide('map-overlay');
         this.state = 'play';
+        UI.setTouchPad(true);
       }
       Input.endFrame();
       return;
@@ -665,12 +714,14 @@ const Game = {
 
     if (Input.wasPressed('pause')) {
       this.state = 'pause';
+      UI.setTouchPad(false);
       UI.show('pause-screen');
       Input.endFrame();
       return;
     }
     if (Input.wasPressed('inventory')) {
       this.state = 'inventory';
+      UI.setTouchPad(false);
       UI.renderInventory();
       UI.show('inventory');
       Input.endFrame();
@@ -678,6 +729,7 @@ const Game = {
     }
     if (Input.wasPressed('map')) {
       this.state = 'map';
+      UI.setTouchPad(false);
       UI.drawMinimap();
       UI.show('map-overlay');
       Input.endFrame();

@@ -14,6 +14,7 @@ Then visit `http://localhost:8080`.
 
 ## Controls
 
+### Desktop
 | Key | Action |
 |-----|--------|
 | Arrow keys / WASD | Move |
@@ -23,6 +24,14 @@ Then visit `http://localhost:8080`.
 | I | Inventory |
 | M | Map |
 | Esc / P | Pause |
+
+### Mobile
+On-screen controls appear automatically on touch devices (or add `?touch` to the URL):
+- **D-pad** — move
+- **Sword** — attack
+- **Bomb** — place bomb
+- **Talk** — interact / advance dialogue
+- **Bag / Map / Pause** — menus
 
 ## Features
 
