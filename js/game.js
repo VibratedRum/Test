@@ -135,6 +135,7 @@ const Game = {
   waterPhase: 0,
   cameraShake: 0,
   doorCooldown: 0,
+  transitionCooldown: 0,
 
   async init() {
     UI.bind();
@@ -259,12 +260,14 @@ const Game = {
     const nowDungeon = String(id).startsWith('d') || id === 'dboss';
     if (wasDungeon !== nowDungeon || music === 'boss') AudioSys.startMusic(music);
 
+    // fromDir = which edge of the NEW screen the player entered from
     if (fromDir && this.player) {
-      const { MAP_W, MAP_H, TILE } = Maps;
-      if (fromDir === 'n') { this.player.y = (MAP_H - 1) * TILE - 8; }
-      if (fromDir === 's') { this.player.y = TILE + 8; }
-      if (fromDir === 'e') { this.player.x = TILE + 8; }
-      if (fromDir === 'w') { this.player.x = (MAP_W - 1) * TILE - 8; }
+      const spot = Maps.edgeSpawn(this.screen, fromDir);
+      this.player.x = spot.x;
+      this.player.y = spot.y;
+      this.player.dir = fromDir === 'n' ? 'down' : fromDir === 's' ? 'up'
+        : fromDir === 'w' ? 'right' : 'left';
+      this.transitionCooldown = 0.45;
     }
   },
 
@@ -654,20 +657,41 @@ const Game = {
   },
 
   checkScreenExit() {
+    if (this.transitionCooldown > 0) return;
     const p = this.player;
     const { TILE, MAP_W, MAP_H } = Maps;
     const links = this.screen.links || {};
+    const edge = TILE * 0.4; // forgiving threshold so openings are easy to cross
     let next = null;
     let dir = null;
-    if (p.y < 8 && links.n) { next = links.n; dir = 'n'; }
-    else if (p.y > MAP_H * TILE - 8 && links.s) { next = links.s; dir = 's'; }
-    else if (p.x < 8 && links.w) { next = links.w; dir = 'w'; }
-    else if (p.x > MAP_W * TILE - 8 && links.e) { next = links.e; dir = 'e'; }
+
+    if (p.y < edge && links.n) { next = links.n; dir = 'n'; }
+    else if (p.y > MAP_H * TILE - edge && links.s) { next = links.s; dir = 's'; }
+    else if (p.x < edge && links.w) { next = links.w; dir = 'w'; }
+    else if (p.x > MAP_W * TILE - edge && links.e) { next = links.e; dir = 'e'; }
 
     if (!next) {
-      // clamp if no link
-      p.x = Math.max(12, Math.min(MAP_W * TILE - 12, p.x));
-      p.y = Math.max(12, Math.min(MAP_H * TILE - 12, p.y));
+      // Only clamp sides that are not exits
+      if (!links.w) p.x = Math.max(14, p.x);
+      if (!links.e) p.x = Math.min(MAP_W * TILE - 14, p.x);
+      if (!links.n) p.y = Math.max(14, p.y);
+      if (!links.s) p.y = Math.min(MAP_H * TILE - 14, p.y);
+      return;
+    }
+
+    // Must be standing on (or past) a walkable edge tile — prevents wall-corner warps
+    const tx = Math.max(0, Math.min(MAP_W - 1, Math.floor(p.x / TILE)));
+    const ty = Math.max(0, Math.min(MAP_H - 1, Math.floor(p.y / TILE)));
+    const edgeTile = dir === 'n' ? this.screen.map.grid[0][tx]
+      : dir === 's' ? this.screen.map.grid[MAP_H - 1][tx]
+        : dir === 'w' ? this.screen.map.grid[ty][0]
+          : this.screen.map.grid[ty][MAP_W - 1];
+    if (Maps.isTileSolid(edgeTile)) {
+      // Push back slightly from a solid rim
+      if (dir === 'n') p.y = Math.max(p.y, edge + 1);
+      if (dir === 's') p.y = Math.min(p.y, MAP_H * TILE - edge - 1);
+      if (dir === 'w') p.x = Math.max(p.x, edge + 1);
+      if (dir === 'e') p.x = Math.min(p.x, MAP_W * TILE - edge - 1);
       return;
     }
 
@@ -679,9 +703,10 @@ const Game = {
       this.player.y = 5 * TILE;
       this.player.dir = 'down';
       this.doorCooldown = 1.0;
+      this.transitionCooldown = 0.5;
       return;
     }
-    // dungeon north/south links between rooms
+    // Enter the opposite edge of the destination screen
     const from = dir === 'n' ? 's' : dir === 's' ? 'n' : dir === 'e' ? 'w' : 'e';
     this.loadScreen(next, from);
   },
@@ -691,6 +716,7 @@ const Game = {
     this.waterPhase += dt;
     if (this.cameraShake > 0) this.cameraShake -= dt;
     if (this.doorCooldown > 0) this.doorCooldown -= dt;
+    if (this.transitionCooldown > 0) this.transitionCooldown -= dt;
 
     if (this.state === 'itemget') {
       this.itemGetTimer -= dt;

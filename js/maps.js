@@ -5,12 +5,13 @@ const MAP_H = 11; // playfield under 48px HUD → 528px
 
 /*
  Tile legend:
-  . sand   ~ water (solid)   g grass   w wood dock
+  . sand/floor (open)   ~ water (solid)   g grass   w wood dock
   # stone wall (solid)  = stone floor  : cliff/rock solid
   T tree solid   B bush cuttable   R rock bombable
-  D locked door  d open door / stairs
+  D locked door  d open door / stairs (walkable)
   H hut blocker  C chest spot (entity)  N npc spot
   S spawn
+  Linked edges ALWAYS have ".." openings so the player can transition.
 */
 
 const Maps = (() => {
@@ -28,7 +29,7 @@ const Maps = (() => {
     biome: 'sand',
     music: 'overworld',
     map: parse([
-      'ggTgggg::ggggTgg',
+      'ggg....gg....ggg', // north exit → Palm Path
       'g..............g',
       'g..T........T..g',
       'g..............g',
@@ -47,15 +48,16 @@ const Maps = (() => {
           "Ahoy, matey! Name's Finn. Storm washed ye onto Coral Cay?",
           "Captain Bones stole the Sea Crown from the village shrine.",
           "Take my old cutlass from the chest by the palms. Ye'll need it.",
+          "Head NORTH through the opening in the trees to leave the dock.",
           "Bones hides in the Blackreef Fortress north of the jungle.",
         ]},
       { type: 'prop', id: 'boat', x: 11, y: 4, sprite: 'prop_boat', solid: true },
       { type: 'prop', id: 'palm1', x: 2, y: 2, sprite: 'prop_palm', solid: true },
-      { type: 'prop', id: 'palm2', x: 12, y: 2, sprite: 'prop_palm', solid: true },
-      { type: 'chest', id: 'chest_sword', x: 13, y: 3, loot: 'sword',
+      { type: 'prop', id: 'palm2', x: 13, y: 2, sprite: 'prop_palm', solid: true },
+      { type: 'chest', id: 'chest_sword', x: 12, y: 3, loot: 'sword',
         message: 'You found the Tide Cutlass!' },
-      { type: 'sign', id: 'sign1', x: 7, y: 3, sprite: 'prop_sign',
-        lines: ['CORAL CAY', '← Village   Jungle ↑', 'Dock of Lost Anchors'] },
+      { type: 'sign', id: 'sign1', x: 8, y: 3, sprite: 'prop_sign',
+        lines: ['CORAL CAY', 'Village →   Jungle ↑', 'Walk into the north opening'] },
     ],
   };
 
@@ -64,24 +66,24 @@ const Maps = (() => {
     biome: 'grass',
     music: 'overworld',
     map: parse([
-      'Tggggg..gggggggT',
-      'gT............Tg',
+      'Tggg....gg....gT', // north → Jungle
+      'g..............g',
       'g..B..T..T..B..g',
       'g..............g',
-      'g......S.......g',
+      '.......S........', // east → Village (open sides)
       'g..T........T..g',
       'g..............g',
       'g..B........B..g',
       'g..............g',
-      'Tg............gT',
-      'TTggggggggggggTT',
+      'g..............g',
+      'TTgg....gg....TT', // south → Dock
     ]),
     links: { n: '0,2', s: '0,0', e: '1,1', w: null },
     entities: [
-      { type: 'enemy', kind: 'crab', x: 4, y: 5 },
-      { type: 'enemy', kind: 'crab', x: 11, y: 6 },
+      { type: 'enemy', kind: 'crab', x: 4, y: 6 },
+      { type: 'enemy', kind: 'crab', x: 11, y: 7 },
       { type: 'prop', id: 'palm3', x: 3, y: 2, sprite: 'prop_palm', solid: true },
-      { type: 'prop', id: 'palm4', x: 12, y: 5, sprite: 'prop_palm', solid: true },
+      { type: 'prop', id: 'palm4', x: 12, y: 6, sprite: 'prop_palm', solid: true },
       { type: 'bush', x: 3, y: 2 },
       { type: 'bush', x: 12, y: 2 },
       { type: 'bush', x: 3, y: 7 },
@@ -95,13 +97,13 @@ const Maps = (() => {
     biome: 'sand',
     music: 'overworld',
     map: parse([
-      '############g:::',
-      '#..........#ggg.',
-      '#..H.......#g...',
-      '#..........#g.T.',
-      '#....S.....#g...',
-      '#..........#ggg.',
-      '#..........#####',
+      '######....######', // north → Ruins
+      '#..............#',
+      '#..H...........#',
+      '#..............#',
+      '.......S........', // west → Palm Path
+      '#..............#',
+      '#..............#',
       '#..............#',
       '#....N.........#',
       '#..............#',
@@ -114,8 +116,8 @@ const Maps = (() => {
         lines: [
           "Welcome to Pearl's Provisions, sailor.",
           "Bombs are 20 doubloons. A red potion is 15.",
-          "Press X near me if ye have the coin… or buy from the chests I stocked.",
-          "The fortress door needs a Skeleton Key. Crabs and bones guard the ruins.",
+          "Buy from the chests I stocked along the wall.",
+          "The fortress door needs a Skeleton Key — search the Ruined Watch north of here.",
         ],
         shop: true },
       { type: 'chest', id: 'chest_bombs', x: 10, y: 8, loot: 'bombs', cost: 20,
@@ -124,8 +126,8 @@ const Maps = (() => {
         message: 'Bought a Tide Potion!' },
       { type: 'chest', id: 'chest_heart', x: 2, y: 7, loot: 'heart_container',
         message: 'A Heart Container! Max health up!' },
-      { type: 'sign', id: 'signv', x: 8, y: 4, sprite: 'prop_sign',
-        lines: ['TIDE VILLAGE', 'May the Sea Crown return.'] },
+      { type: 'sign', id: 'signv', x: 8, y: 3, sprite: 'prop_sign',
+        lines: ['TIDE VILLAGE', '← Path   Ruins ↑', 'May the Sea Crown return.'] },
     ],
   };
 
@@ -134,17 +136,17 @@ const Maps = (() => {
     biome: 'grass',
     music: 'overworld',
     map: parse([
-      'TTTT..::::..TTTT',
+      'TTTT....::::TTTT', // north → Cliff (open)
       'TT............TT',
       'T..B.R....R.B..T',
       'T..............T',
-      'T......S.......T',
+      '.......S........', // east → Ruins
       'T..T........T..T',
       'T..............T',
       'T..B........B..T',
       'T..............T',
       'TT............TT',
-      'TTTTgg....ggTTTT',
+      'TTTTgg....ggTTTT', // south → Palm Path
     ]),
     links: { s: '0,1', e: '1,2', n: '0,3' },
     entities: [
@@ -159,8 +161,8 @@ const Maps = (() => {
       { type: 'bush', x: 12, y: 7 },
       { type: 'chest', id: 'chest_key_hint', x: 8, y: 3, loot: 'coin_bag',
         message: 'A bag of doubloons! (x10)' },
-      { type: 'prop', id: 'palm5', x: 4, y: 5, sprite: 'prop_palm', solid: true },
-      { type: 'prop', id: 'palm6', x: 11, y: 5, sprite: 'prop_palm', solid: true },
+      { type: 'prop', id: 'palm5', x: 4, y: 6, sprite: 'prop_palm', solid: true },
+      { type: 'prop', id: 'palm6', x: 11, y: 6, sprite: 'prop_palm', solid: true },
     ],
   };
 
@@ -169,17 +171,17 @@ const Maps = (() => {
     biome: 'stone',
     music: 'overworld',
     map: parse([
-      '########..######',
+      '######....######', // north → Bluff
       '#..............#',
       '#..R........R..#',
       '#..............#',
-      '#......S.......#',
+      '.......S........', // west → Jungle
       '#..............#',
       '#..=======.....#',
       '#..=........=..#',
       '#..====.====...#',
       '#..............#',
-      '######....######',
+      '######....######', // south → Village
     ]),
     links: { w: '0,2', s: '1,1', n: '1,3' },
     entities: [
@@ -199,30 +201,30 @@ const Maps = (() => {
     biome: 'grass',
     music: 'overworld',
     map: parse([
-      '::::########::::',
+      '::::###..###::::', // fortress door area (open center)
       '::::#......#::::',
       'gggg#......#gggg',
-      'g...........T..g',
-      'g......S.......g',
+      'g..............g',
+      '.......S........', // east → Bluff
       'g..T........T..g',
       'g..............g',
       'g..B...R...B...g',
       'g..............g',
       'gg............gg',
-      'TTgg........ggTT',
+      'TTgg....gg..ggTT', // south → Jungle
     ]),
     links: { s: '0,2', e: '1,3' },
     entities: [
       { type: 'enemy', kind: 'pirate', x: 5, y: 6 },
       { type: 'enemy', kind: 'skeleton', x: 10, y: 5 },
-      { type: 'door', id: 'fortress_door', x: 7.5, y: 2, locked: true, target: 'd0' },
+      { type: 'door', id: 'fortress_door', x: 7.5, y: 1, locked: true, target: 'd0' },
       { type: 'rock', x: 7, y: 7 },
       { type: 'bush', x: 3, y: 7 },
       { type: 'bush', x: 11, y: 7 },
       { type: 'sign', id: 'signf', x: 4, y: 3, sprite: 'prop_sign',
-        lines: ['BLACKREEF FORTRESS', 'Only a Skeleton Key opens these gates.'] },
-      { type: 'prop', id: 'palm7', x: 12, y: 3, sprite: 'prop_palm', solid: true },
-      { type: 'prop', id: 'palm8', x: 3, y: 5, sprite: 'prop_palm', solid: true },
+        lines: ['BLACKREEF FORTRESS', 'Only a Skeleton Key opens these gates.', 'Stand by the door and press Talk / A.'] },
+      { type: 'prop', id: 'palm7', x: 13, y: 3, sprite: 'prop_palm', solid: true },
+      { type: 'prop', id: 'palm8', x: 2, y: 5, sprite: 'prop_palm', solid: true },
     ],
   };
 
@@ -235,13 +237,13 @@ const Maps = (() => {
       '#~~~~~~~~~~~~~~#',
       '#~............~#',
       '#~..R......R..~#',
-      '#~.....S......~#',
+      '~~.....S......~~', // west open → Cliff (water sides walkable via .)
       '#~............~#',
       '#~~~~~~~~~~~~~~#',
       '#..............#',
       '#..B........B..#',
       '#..............#',
-      '######....######',
+      '######....######', // south → Ruins
     ]),
     links: { w: '0,3', s: '1,2' },
     entities: [
@@ -256,13 +258,28 @@ const Maps = (() => {
     ],
   };
 
-  // Dungeon rooms
+  // Fix bluff west — use open floor not water
+  overworld['1,3'].map = parse([
+    '################',
+    '#~~~~~~~~~~~~~~#',
+    '#~............~#',
+    '#~..R......R..~#',
+    '.......S........', // west → Cliff
+    '#~............~#',
+    '#~~~~~~~~~~~~~~#',
+    '#..............#',
+    '#..B........B..#',
+    '#..............#',
+    '######....######',
+  ]);
+
+  // Dungeon rooms — openings cut into the outer walls
   dungeon.d0 = {
     name: 'Fortress Gatehall',
     biome: 'dungeon',
     music: 'dungeon',
     map: parse([
-      '################',
+      '######dd########', // north → d1
       '#==============#',
       '#=............=#',
       '#=............=#',
@@ -271,8 +288,8 @@ const Maps = (() => {
       '#=............=#',
       '#=.....##.....=#',
       '#=............=#',
-      '#=======dd=====#',
-      '################',
+      '#==============#',
+      '######dd########', // south → overworld
     ]),
     links: { s: 'over:0,3', n: 'd1' },
     entities: [
@@ -290,17 +307,17 @@ const Maps = (() => {
     biome: 'dungeon',
     music: 'dungeon',
     map: parse([
-      '################',
-      '#======dd======#',
+      '######dd########', // north → d2
+      '#==============#',
       '#=............=#',
       '#=..R......R..=#',
-      '#=.....S......=#',
+      '#=.....S......dd', // east → side cache
       '#=............=#',
       '#=..########..=#',
       '#=............=#',
       '#=............=#',
-      '#======dd======#',
-      '################',
+      '#==============#',
+      '######dd########', // south → d0
     ]),
     links: { s: 'd0', n: 'd2', e: 'd1b' },
     entities: [
@@ -323,7 +340,7 @@ const Maps = (() => {
       '#==============#',
       '#=............=#',
       '#=............=#',
-      '#=S...........=#',
+      'dd.....S......=#', // west → d1
       '#=............=#',
       '#=............=#',
       '#=............=#',
@@ -347,7 +364,7 @@ const Maps = (() => {
     biome: 'dungeon',
     music: 'dungeon',
     map: parse([
-      '########dd######',
+      '######dd########', // north → boss
       '#==============#',
       '#=............=#',
       '#=..##....##..=#',
@@ -356,8 +373,8 @@ const Maps = (() => {
       '#=..##....##..=#',
       '#=............=#',
       '#=............=#',
-      '#======dd======#',
-      '################',
+      '#==============#',
+      '######dd########', // south → d1
     ]),
     links: { s: 'd1', n: 'dboss' },
     entities: [
@@ -383,8 +400,8 @@ const Maps = (() => {
       '#=............=#',
       '#=............=#',
       '#=............=#',
-      '#======dd======#',
-      '################',
+      '#==============#',
+      '######dd########', // south → d2
     ]),
     links: { s: 'd2' },
     entities: [
@@ -393,7 +410,6 @@ const Maps = (() => {
   };
 
   const solidChars = new Set(['#', '~', ':', 'T', 'H']);
-  // D and R and B handled as entities mostly; map D is wall until unlocked
 
   function getScreen(id) {
     if (id.startsWith('d') || id === 'dboss') return dungeon[id];
@@ -406,7 +422,7 @@ const Maps = (() => {
 
   function walkable(screen, tx, ty) {
     if (!screen) return false;
-    if (ty < 0 || ty >= MAP_H || tx < 0 || tx >= MAP_W) return true; // screen transition
+    if (ty < 0 || ty >= MAP_H || tx < 0 || tx >= MAP_W) return true;
     const ch = screen.map.grid[ty][tx];
     return !isTileSolid(ch);
   }
@@ -421,6 +437,39 @@ const Maps = (() => {
     return { x: 8 * TILE, y: 5 * TILE };
   }
 
+  /** Find a walkable tile center along an edge for spawning after a transition */
+  function edgeSpawn(screen, edge) {
+    const g = screen.map.grid;
+    const mid = Math.floor(MAP_W / 2);
+    if (edge === 'n') {
+      for (let x = mid, i = 0; i < MAP_W; i++, x = (mid + ((i % 2) ? 1 : -1) * Math.ceil(i / 2) + MAP_W) % MAP_W) {
+        if (!isTileSolid(g[0][x])) return { x: x * TILE + TILE / 2, y: TILE * 0.65 };
+      }
+      return { x: mid * TILE, y: TILE * 0.65 };
+    }
+    if (edge === 's') {
+      for (let x = mid, i = 0; i < MAP_W; i++, x = (mid + ((i % 2) ? 1 : -1) * Math.ceil(i / 2) + MAP_W) % MAP_W) {
+        if (!isTileSolid(g[MAP_H - 1][x])) return { x: x * TILE + TILE / 2, y: (MAP_H - 0.65) * TILE };
+      }
+      return { x: mid * TILE, y: (MAP_H - 0.65) * TILE };
+    }
+    if (edge === 'w') {
+      const x = 0;
+      for (let y = Math.floor(MAP_H / 2), i = 0; i < MAP_H; i++, y = (Math.floor(MAP_H / 2) + ((i % 2) ? 1 : -1) * Math.ceil(i / 2) + MAP_H) % MAP_H) {
+        if (!isTileSolid(g[y][x])) return { x: TILE * 0.65, y: y * TILE + TILE / 2 };
+      }
+      return { x: TILE * 0.65, y: 5 * TILE };
+    }
+    if (edge === 'e') {
+      const x = MAP_W - 1;
+      for (let y = Math.floor(MAP_H / 2), i = 0; i < MAP_H; i++, y = (Math.floor(MAP_H / 2) + ((i % 2) ? 1 : -1) * Math.ceil(i / 2) + MAP_H) % MAP_H) {
+        if (!isTileSolid(g[y][x])) return { x: (MAP_W - 0.65) * TILE, y: y * TILE + TILE / 2 };
+      }
+      return { x: (MAP_W - 0.65) * TILE, y: 5 * TILE };
+    }
+    return findSpawn(screen);
+  }
+
   const worldGraph = [
     ['0,3', '1,3'],
     ['0,2', '1,2'],
@@ -430,6 +479,6 @@ const Maps = (() => {
 
   return {
     TILE, MAP_W, MAP_H, overworld, dungeon, getScreen, walkable, findSpawn,
-    isTileSolid, worldGraph,
+    isTileSolid, worldGraph, edgeSpawn,
   };
 })();
