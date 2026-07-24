@@ -56,9 +56,17 @@ const Input = (() => {
   function endFrame() { pressed.clear(); }
 
   function isTouchDevice() {
-    return window.matchMedia('(pointer: coarse)').matches
-      || navigator.maxTouchPoints > 0
-      || 'ontouchstart' in window;
+    try {
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+      if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return true;
+      if (window.matchMedia('(hover: none)').matches && window.innerWidth < 1024) return true;
+    } catch (_) {}
+    if (navigator.maxTouchPoints > 0) return true;
+    if ('ontouchstart' in window) return true;
+    if (window.innerWidth <= 900) return true;
+    const ua = navigator.userAgent || '';
+    if (/Android|iPhone|iPad|iPod|Mobile|IEMobile|Opera Mini/i.test(ua)) return true;
+    return false;
   }
 
   /** Bind on-screen control pad buttons with data-action attributes */

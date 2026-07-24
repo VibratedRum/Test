@@ -22,12 +22,19 @@ const UI = {
     }
   },
   setTouchPad(visible) {
-    if (!document.body.classList.contains('touch-ui')) {
-      this.hide('touch-controls');
-      return;
+    const el = this.el['touch-controls'];
+    if (!el) return;
+    // On phones always show during play; desktop needs touch-ui enabled
+    const mobile = Input.isTouchDevice();
+    const allow = mobile || document.body.classList.contains('touch-ui');
+    const show = !!(visible && allow);
+    el.classList.toggle('is-visible', show);
+    if (show) {
+      el.hidden = false;
+      el.removeAttribute('hidden');
+    } else {
+      el.hidden = true;
     }
-    if (visible) this.show('touch-controls');
-    else this.hide('touch-controls');
   },
   refresh() {
     const p = Game.player;
@@ -136,12 +143,20 @@ const Game = {
     this.ctx.imageSmoothingEnabled = false;
 
     const params = new URLSearchParams(location.search);
-    let preferTouch = false;
-    try { preferTouch = localStorage.getItem('tide-touch-ui') === '1'; } catch (_) {}
-    if (params.has('touch') || params.get('touch') === '1' || Input.isTouchDevice() || preferTouch) {
+    let savedTouch = null;
+    try { savedTouch = localStorage.getItem('tide-touch-ui'); } catch (_) {}
+    // Phones always get touch UI. Desktop: button / ?touch / saved "on".
+    if (Input.isTouchDevice() || params.has('touch') || savedTouch === '1') {
       UI.enableTouchUi(true);
     }
     Input.bindTouchPad(document.getElementById('touch-controls'));
+    // First tap anywhere unlocks audio + ensures touch UI on real devices
+    const armTouch = () => {
+      if (Input.isTouchDevice()) UI.enableTouchUi(true);
+      AudioSys.unlock();
+    };
+    window.addEventListener('pointerdown', armTouch, { once: true, passive: true });
+    window.addEventListener('touchstart', armTouch, { once: true, passive: true });
 
     await Assets.loadAll();
     this.bindButtons();
@@ -202,6 +217,8 @@ const Game = {
     this.player.x = spawn.x;
     this.player.y = spawn.y;
     this.state = 'play';
+    document.body.classList.add('playing');
+    if (Input.isTouchDevice()) UI.enableTouchUi(true);
     UI.hide('title-screen');
     UI.hide('gameover');
     UI.hide('victory');
@@ -213,6 +230,7 @@ const Game = {
 
   toTitle() {
     this.state = 'title';
+    document.body.classList.remove('playing');
     AudioSys.stopMusic();
     UI.hide('hud');
     UI.hide('pause-screen');

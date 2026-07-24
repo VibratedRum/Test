@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
 </head>
 <body>
   <div id="app">
@@ -49,28 +49,6 @@
             <p class="hint-desktop"><kbd>Space</kbd> / <kbd>Enter</kbd> Talk / Open &nbsp;·&nbsp; <kbd>I</kbd> Inventory &nbsp;·&nbsp; <kbd>M</kbd> Map</p>
             <p class="hint-mobile">On-screen pad appears after Set Sail — move · sword · bomb · talk</p>
           </div>
-        </div>
-      </div>
-
-      <div id="touch-controls" class="hidden" aria-label="Touch controls">
-        <div id="dpad" class="dpad">
-          <button type="button" class="dpad-btn dpad-up" data-action="up" aria-label="Up"></button>
-          <button type="button" class="dpad-btn dpad-left" data-action="left" aria-label="Left"></button>
-          <button type="button" class="dpad-btn dpad-right" data-action="right" aria-label="Right"></button>
-          <button type="button" class="dpad-btn dpad-down" data-action="down" aria-label="Down"></button>
-          <div class="dpad-center"></div>
-        </div>
-        <div class="touch-actions">
-          <button type="button" class="touch-btn touch-menu" data-action="pause" aria-label="Pause">❚❚</button>
-          <button type="button" class="touch-btn touch-menu" data-action="map" aria-label="Map">Map</button>
-          <button type="button" class="touch-btn touch-menu" data-action="inventory" aria-label="Inventory">Bag</button>
-          <button type="button" class="touch-btn touch-action" data-action="action" aria-label="Talk">Talk</button>
-          <button type="button" class="touch-btn touch-bomb" data-action="item" aria-label="Bomb">
-            <img src="assets/ui/item_bomb.png" alt="" />
-          </button>
-          <button type="button" class="touch-btn touch-sword" data-action="sword" aria-label="Sword">
-            <img src="assets/ui/item_sword.png" alt="" />
-          </button>
         </div>
       </div>
 
@@ -132,13 +110,36 @@
         </div>
       </div>
     </div>
+
+    <!-- Fixed to viewport so phones never clip the pad inside the canvas shell -->
+    <div id="touch-controls" class="touch-controls" aria-label="Touch controls" hidden>
+      <div id="dpad" class="dpad">
+        <button type="button" class="dpad-btn dpad-up" data-action="up" aria-label="Up"></button>
+        <button type="button" class="dpad-btn dpad-left" data-action="left" aria-label="Left"></button>
+        <button type="button" class="dpad-btn dpad-right" data-action="right" aria-label="Right"></button>
+        <button type="button" class="dpad-btn dpad-down" data-action="down" aria-label="Down"></button>
+        <div class="dpad-center"></div>
+      </div>
+      <div class="touch-actions">
+        <button type="button" class="touch-btn touch-menu" data-action="pause" aria-label="Pause">❚❚</button>
+        <button type="button" class="touch-btn touch-menu" data-action="map" aria-label="Map">Map</button>
+        <button type="button" class="touch-btn touch-menu" data-action="inventory" aria-label="Inventory">Bag</button>
+        <button type="button" class="touch-btn touch-action" data-action="action" aria-label="Talk">A</button>
+        <button type="button" class="touch-btn touch-bomb" data-action="item" aria-label="Bomb">
+          <img src="assets/ui/item_bomb.png" alt="" draggable="false" />
+        </button>
+        <button type="button" class="touch-btn touch-sword" data-action="sword" aria-label="Sword">
+          <img src="assets/ui/item_sword.png" alt="" draggable="false" />
+        </button>
+      </div>
+    </div>
   </div>
 
-  <script src="js/audio.js"></script>
-  <script src="js/assets.js"></script>
-  <script src="js/input.js"></script>
-  <script src="js/maps.js"></script>
-  <script src="js/entities.js"></script>
-  <script src="js/game.js"></script>
+  <script src="js/audio.js?v=3"></script>
+  <script src="js/assets.js?v=3"></script>
+  <script src="js/input.js?v=3"></script>
+  <script src="js/maps.js?v=3"></script>
+  <script src="js/entities.js?v=3"></script>
+  <script src="js/game.js?v=3"></script>
 </body>
 </html>
