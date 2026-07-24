@@ -289,14 +289,16 @@ kbd {
 #touch-controls {
   position: absolute;
   inset: 0;
-  z-index: 15;
+  z-index: 18;
   pointer-events: none;
-  display: flex;
+  display: none;
   justify-content: space-between;
   align-items: flex-end;
   padding: max(10px, env(safe-area-inset-bottom)) 12px 14px;
 }
-#touch-controls:not(.hidden) { display: flex; }
+body.touch-ui #touch-controls:not(.hidden) {
+  display: flex !important;
+}
 
 .dpad {
   position: relative;
@@ -309,11 +311,12 @@ kbd {
   position: absolute;
   width: 48px;
   height: 48px;
-  border: 2px solid rgba(224, 177, 69, 0.55);
-  background: rgba(8, 24, 32, 0.55);
+  border: 2px solid rgba(224, 177, 69, 0.85);
+  background: rgba(8, 24, 32, 0.78);
   color: var(--foam);
   border-radius: 10px;
   pointer-events: none; /* whole dpad captures pointer */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 .dpad-btn::after {
   content: "";
@@ -356,8 +359,8 @@ kbd {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 2px solid rgba(224, 177, 69, 0.55);
-  background: rgba(8, 24, 32, 0.6);
+  border: 2px solid rgba(224, 177, 69, 0.85);
+  background: rgba(8, 24, 32, 0.82);
   color: var(--foam);
   font-family: "Pirata One", serif;
   font-size: 0.85rem;
@@ -365,6 +368,7 @@ kbd {
   place-items: center;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 .touch-btn img {
   width: 28px;
@@ -436,6 +440,7 @@ body.touch-ui #game-shell {
   .touch-menu { width: 44px; height: 36px; }
 }
 
+/* Hide pad on desktop unless touch mode is enabled */
 @media (pointer: fine) and (min-width: 900px) {
-  body:not(.force-touch-ui) #touch-controls { display: none !important; }
+  body:not(.touch-ui) #touch-controls { display: none !important; }
 }

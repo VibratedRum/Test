@@ -7,15 +7,25 @@ const UI = {
       'title-screen', 'dialogue', 'dialogue-name', 'dialogue-text',
       'inventory', 'inv-grid', 'map-overlay', 'minimap', 'pause-screen',
       'gameover', 'victory', 'victory-stats', 'item-get', 'item-get-img', 'item-get-text',
-      'btn-start', 'btn-resume', 'btn-totitle', 'btn-retry', 'btn-again',
+      'btn-start', 'btn-resume', 'btn-totitle', 'btn-retry', 'btn-again', 'btn-touch',
       'touch-controls',
     ];
     ids.forEach((id) => { this.el[id] = document.getElementById(id); });
   },
   show(id) { this.el[id]?.classList.remove('hidden'); },
   hide(id) { this.el[id]?.classList.add('hidden'); },
+  enableTouchUi(on = true) {
+    document.body.classList.toggle('touch-ui', on);
+    try { localStorage.setItem('tide-touch-ui', on ? '1' : '0'); } catch (_) {}
+    if (this.el['btn-touch']) {
+      this.el['btn-touch'].textContent = on ? 'Touch Controls: On' : 'Use Touch Controls';
+    }
+  },
   setTouchPad(visible) {
-    if (!document.body.classList.contains('touch-ui')) return;
+    if (!document.body.classList.contains('touch-ui')) {
+      this.hide('touch-controls');
+      return;
+    }
     if (visible) this.show('touch-controls');
     else this.hide('touch-controls');
   },
@@ -125,8 +135,11 @@ const Game = {
     this.ctx = this.canvas.getContext('2d');
     this.ctx.imageSmoothingEnabled = false;
 
-    if (Input.isTouchDevice() || new URLSearchParams(location.search).has('touch')) {
-      document.body.classList.add('touch-ui');
+    const params = new URLSearchParams(location.search);
+    let preferTouch = false;
+    try { preferTouch = localStorage.getItem('tide-touch-ui') === '1'; } catch (_) {}
+    if (params.has('touch') || params.get('touch') === '1' || Input.isTouchDevice() || preferTouch) {
+      UI.enableTouchUi(true);
     }
     Input.bindTouchPad(document.getElementById('touch-controls'));
 
@@ -141,6 +154,10 @@ const Game = {
     UI.el['btn-totitle'].onclick = () => this.toTitle();
     UI.el['btn-retry'].onclick = () => this.startGame();
     UI.el['btn-again'].onclick = () => this.startGame();
+    UI.el['btn-touch'].onclick = () => {
+      const on = !document.body.classList.contains('touch-ui');
+      UI.enableTouchUi(on);
+    };
 
     document.querySelectorAll('[data-close]').forEach((btn) => {
       btn.addEventListener('click', () => {
